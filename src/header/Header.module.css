@@ -1,0 +1,50 @@
+#header {
+    background: var(--accent-color);
+}
+
+#header nav ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+}
+
+#header nav ul li {
+    display: flex;
+    align-items: center;
+}
+
+#header nav ul li a {
+    background: var(--secondary-color);
+    padding: var(--main-padding);
+    font-size: 1.5rem;
+    color: rgb(218, 218, 218);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+#header nav ul li a:hover {
+    background: var(--hover-color);
+}
+
+.selectedPage {
+    background: var(--hover-color) !important;
+}
+
+#sidebar a {
+    /*padding: 0 !important;
+    align-self: center;*/
+}
+
+.menu_text {
+    margin-left: var(--main-padding);
+}
+
+@media (max-width: 850px) { 
+    #header nav ul {
+        justify-content: space-between;
+    }
+    .menu_text {
+        display: none;
+    }
+}

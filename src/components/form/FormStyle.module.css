@@ -1,0 +1,48 @@
+.label {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: baseline;
+    width: 100%;
+}
+
+.label input {
+    padding: var(--main-padding)
+}
+
+.error {
+    color: red;
+    text-align: left;
+}
+
+.item_of_list {
+    cursor: pointer;
+}
+
+.autocomplete_items {
+}
+
+.autocomplete_items > div::-webkit-scrollbar {
+    display: none;
+}
+
+.autocomplete_item_list {
+    position: fixed;
+    height: 40%;
+    width: 12.5rem;
+    overflow-y: scroll;
+}
+
+.item_of_list {
+    background: rgb(73, 73, 73);
+    padding: 10px;
+}
+
+.form_element {
+    width: 100%;
+    margin: 5px;
+}
+
+.element_label {
+    text-align: left;
+}

@@ -1,0 +1,82 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  color-scheme: light dark;
+
+  --main-bg-color: rgb(37, 37, 37);
+  --secondary-color: rgb(128, 28, 28);
+  --hover-color: rgb(177, 0, 0);
+  --accent-color: rgb(95, 0, 0);
+  --main-padding: 15px;
+}
+
+#root, #root_content {
+  width: 100dvw;
+}
+
+#root #root_content {
+  display: flex;
+  flex-flow: column;
+  height: 100dvh;
+}
+
+body {
+  background: var(--main-bg-color);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  color: white;
+}
+
+a {
+  text-decoration: none;
+  color: rgb(255, 91, 91);
+}
+
+a:hover {
+  color: rgb(255, 27, 27);
+}
+
+button, input[type='button'], input[type='submit'] {
+  background: var(--secondary-color);
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 1.0rem;
+  border: 1px solid var(--accent-color);
+  padding: 10px;
+}
+
+button:hover, input[type='button']:hover, input[type='submit']:hover {
+  background: var(--hover-color);
+  cursor: pointer;
+}
+
+button:disabled, input[type='button']:disabled, input[type='submit']:disabled {
+  color: white;
+  background: var(--accent-color);
+}
+
+.notifications {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+
+.notifications .notification {
+  margin: 5px;
+}
+
+.notification span {
+  font-weight: bold;
+}
+
+.notification {
+  padding: 10px;
+  text-align: left;
+}
+
+.notification.warning {
+  border: 1px solid rgb(161, 161, 4);
+}
