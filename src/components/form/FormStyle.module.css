@@ -4,15 +4,17 @@
     justify-content: space-between;
     align-items: baseline;
     width: 100%;
+    flex-flow: column wrap;
 }
 
 .label input {
-    padding: var(--main-padding)
+    padding: var(--main-padding) 0 var(--main-padding) 0;
 }
 
 .error {
     color: red;
     text-align: left;
+    width: 20%;
 }
 
 .item_of_list {

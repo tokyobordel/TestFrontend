@@ -38,6 +38,10 @@ a:hover {
   color: rgb(255, 27, 27);
 }
 
+input[type='text'], input[type='number'], input[type='date'] {
+  width: 100%;
+}
+
 button, input[type='button'], input[type='submit'] {
   background: var(--secondary-color);
   border: none;
@@ -46,6 +50,7 @@ button, input[type='button'], input[type='submit'] {
   font-size: 1.0rem;
   border: 1px solid var(--accent-color);
   padding: 10px;
+  color: white !important;
 }
 
 button:hover, input[type='button']:hover, input[type='submit']:hover {

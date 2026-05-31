@@ -1,8 +1,10 @@
 #content {
     display: flex;
     flex-grow: 1;
-    padding: var(--main-padding);
+    /* padding: var(--main-padding); */
     text-wrap: wrap;
     overflow-y: scroll;
     justify-content: center;
+    width: 100dvw;
+    flex-flow: column nowrap;
 }

@@ -11,7 +11,6 @@ import {
   type MRT_PaginationState,
   type MRT_SortingState,
 } from 'material-react-table';
-//import AddEngineForm from "content/forms/AddEngineForm";
 import { createTheme, IconButton, ThemeProvider } from "@mui/material";
 import { MRT_Localization_RU } from 'material-react-table/locales/ru';
 import { LuCirclePlus } from "react-icons/lu";
@@ -26,6 +25,7 @@ import {
 import './JournalTable.css'
 
 import useGetJournals from "@/hooks/useGetJournals";
+import AddJournalRecordForm from "../forms/AddJournalRecordForm";
 
 
 
@@ -39,7 +39,7 @@ export type JournalRecord = {
 
 function JournalTable() {
 
-    const [isAddEngineFormOpened, setAddEngineFormOpenedd] = useState(false);
+    const [isJournalRecordFormOpened, setAddJournalRecordFormOpened] = useState(false);
 
     const [isRefetching, setIsRefetching] = useState(false);
     const [rowCount, setRowCount] = useState(0);
@@ -114,28 +114,6 @@ function JournalTable() {
         }
     );
 
-    const tableTheme = createTheme({
-    components: {
-        MuiMenu: {
-        styleOverrides: {
-            paper: {
-            backgroundColor: '#333',   // фон меню
-            color: '#fff',
-            },
-        },
-        },
-        MuiMenuItem: {
-        styleOverrides: {
-            root: {
-            '&:hover': {
-                backgroundColor: '#555',
-            },
-            },
-        },
-        },
-    },
-    });
-
     const table = useMaterialReactTable({
         columns,
         data: data ?? [], //data must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
@@ -151,11 +129,9 @@ function JournalTable() {
         manualFiltering: true,
         manualPagination: true,
         manualSorting: true,
-        /* muiToolbarAlertBannerProps: error != null
-        ? {
+        muiToolbarAlertBannerProps: isError != null ? {
             children: 'Ошика при загрузке данных',
-        }
-        : undefined, */
+        } : undefined,
         state: {   
             density: 'compact',
             columnFilters,
@@ -171,15 +147,15 @@ function JournalTable() {
                 boxShadow: "none",
                 borderRadius: 0, 
                 borderSpacing: "0",
-                marginTop: "var(--main-padding)",
-                marginBottom: "var(--main-padding)",
+                /* marginTop: "var(--main-padding)",
+                marginBottom: "var(--main-padding)", */
                 '& .MuiAlert-colorInfo': {
                     backgroundColor: "var(--hover-color)",
                 },
                 background: "transparent",
                 height: '100%',
                 margin: "0 auto",
-                width: "100dvw",
+                width: "100%",
                 display: "flex",
                 flexDirection: "column",
             } 
@@ -216,7 +192,7 @@ function JournalTable() {
                 //overflow: "none",
                 minHeight: "80px",
                 color: "white",
-                padding: "0",
+                padding: "10px",
                 margin: '0',
                 '& .MuiFormLabel-root': { // Стили для текста "Страница 1 из 10"
                     color: 'white',
@@ -248,6 +224,22 @@ function JournalTable() {
                 backgroundColor: "var(--accent-color)" 
             } 
         }, // Стиль для ячеек заголовка таблицы
+        muiFilterTextFieldProps: {
+            sx: {
+                '& .MuiInputBase-input': {
+                },
+                '& .MuiInputBase-input::placeholder': {
+                    color: 'white',
+                },
+            },
+        },
+        muiSearchTextFieldProps: {
+            InputProps: {
+                sx: {
+                    color: 'white', // цвет вводимого текста
+                },
+            }
+        },
         muiPaginationProps: {
             siblingCount: 0,    // не показываем соседние страницы
             boundaryCount: 0,   // не показываем первую и последнюю
@@ -283,20 +275,19 @@ function JournalTable() {
         renderTopToolbarCustomActions: ({ table }) => ( // для добавления своих кнопок в начало тулбара
             <div>
                 <IconButton  onClick={() => {
-                    setAddEngineFormOpenedd(!isAddEngineFormOpened)
+                    setAddJournalRecordFormOpened(!isJournalRecordFormOpened)
                 }}>
                     <LuCirclePlus size={25} />
                 </IconButton >
-                {/* <IconButton>
+                <IconButton>
                     {
-                        loading 
+                        isLoading 
                             ? <DashLoading size={28} color="white" /> 
-                            : error 
+                            : isError 
                                 ? <MdErrorOutline size={28}/> 
                                 : null
                     }
-                </IconButton > */}
-                {/*error ? "Ошибка" : null*/}
+                </IconButton >
             </div>
         ),
         renderToolbarInternalActions: ({ table }) => ( // для добавления своих кнопок в конец тулбара, после всех встроенных
@@ -313,7 +304,10 @@ function JournalTable() {
     });
 
     return (
-        <MaterialReactTable table={table} />
+        <>
+            {isJournalRecordFormOpened ? <AddJournalRecordForm closeFormFunc={() => setAddJournalRecordFormOpened(false)} />: null}
+            {!isJournalRecordFormOpened ? <MaterialReactTable table={table} />: null}
+        </>
     )
 }
 

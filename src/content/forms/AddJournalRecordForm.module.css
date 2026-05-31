@@ -1,18 +1,15 @@
-#add_car_form {
+#add_journal_record_form {
    display: flex;
    flex-flow: column nowrap;
    align-items: center;
    justify-content: center;
    margin-top: 10px;
+   height: 100%;
 }
 
-#add_car_form > div {
+#add_journal_record_form > div {
    display: flex;
    flex-flow: column wrap;
    align-items: start;
 }
 
-
-#add_car_form input {
-    
-}
