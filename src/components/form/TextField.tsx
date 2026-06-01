@@ -10,6 +10,7 @@ function TextField({ label }: { label: string }) {
       <label className={styles.label}>
         <div className={styles.element_label}>{label}</div>
         <input
+          type="text"
           placeholder={label}
           value={field.state.value}
           onChange={(e) => {

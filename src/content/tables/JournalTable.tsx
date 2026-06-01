@@ -165,7 +165,7 @@ function JournalTable() {
                 borderRadius: 0,
                 backgroundColor: "#4d4d4d",
                 color: "white",
-                /* height: '50%', */
+                height: '100%',
                 '& .MuiTypography-root': {
                     color: "white"
                 }

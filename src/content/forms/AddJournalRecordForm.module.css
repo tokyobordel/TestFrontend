@@ -9,7 +9,13 @@
 
 #add_journal_record_form > div {
    display: flex;
-   flex-flow: column wrap;
+   flex-flow: column nowrap;
    align-items: start;
+   width: 20%;
 }
 
+@media (max-width: 850px) { 
+    #add_journal_record_form > div  {
+        width: 70%;
+    }
+}

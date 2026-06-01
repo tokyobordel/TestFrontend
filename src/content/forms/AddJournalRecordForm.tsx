@@ -11,9 +11,10 @@ import { IoIosCloseCircleOutline } from "react-icons/io";
 import DateField from '@components/form/DateField';
 
 const journalRecordSchema = z.object({
-  date: z.date(),
-  recordType: z.number(),
-  employee: z.string(),
+  date: z.iso.date("Обязательно для заполнения"),
+  recordType: z.number("Обязательно для заполнения"),
+  volume: z.number("Обязательно для заполнения"),
+  employee: z.string("Обязательно для заполнения").nonempty("Обязательно для заполнения"),
 })
 
 const { useAppForm } = createFormHook({
@@ -37,22 +38,49 @@ function AddJournalRecordForm(props: AddEngineFormProps) {
 
   // todo выполнить запрос на бек по engineID и подставить сюда значения
   const defaults = {
-    date: "",
+    date: new Date().toISOString().split("T")[0],
     recordType: 0,
-    employee: "",
+    volume: 0,
+    employee: '',
   }
 
   const form = useAppForm({
-    //defaultValues: defaults,
+    defaultValues: defaults,
     validators: {
-      // Pass a schema or function to validate
       onChange: journalRecordSchema,
     },
     onSubmit: ({ value }) => {
-      // Do something with form data
       alert(JSON.stringify(value, null, 2))
     },
   })
+
+  const recordTypes = [
+    {
+      id: 0,
+      name: "Монтаж опалубки",
+      unit: "м2"
+    },
+    {
+      id: 1,
+      name: "Кладка перегородок",
+      unit: "м2"
+    },
+    {
+      id: 2,
+      name: "Замешивание раствора",
+      unit: "м3"
+    },
+    {
+      id: 3,
+      name: "Закупка инструмента",
+      unit: "шт"
+    },
+    {
+      id: 4,
+      name: "Закупка материалов",
+      unit: "шт"
+    }
+  ]
 
   useEffect(() => {
     /* if(engineConfigTypes) {
@@ -84,12 +112,22 @@ function AddJournalRecordForm(props: AddEngineFormProps) {
 
           <form.AppField
             name="recordType"
+            children={(field) => <field.AutocompleteField items={recordTypes} itemKey={"id"} searchParam={"name"} label="Вид работ" />}
+          /> 
+
+          {/* <form.AppField
+            name="recordType"
             children={(field) => <field.NumberField label="Вид работ" />}
+          /> */}
+
+          <form.AppField
+            name="volume"
+            children={(field) => <field.NumberField label="Объем работы" />}
           />
 
           <form.AppField
             name="employee"
-            children={(field) => <field.NumberField label="ФИО исполнителя" />}
+            children={(field) => <field.TextField label="ФИО исполнителя" />}
           />
 
         </div>
