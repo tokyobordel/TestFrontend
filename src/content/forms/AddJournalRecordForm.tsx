@@ -6,9 +6,11 @@ import NumberField from '@components/form/NumberField';
 import SubmitButton from '@components/form/SubmitButton';
 import styles from './AddJournalRecordForm.module.css'
 import AutocompleteField from '@components/form/AutocompleteField';
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import DateField from '@components/form/DateField';
+import useSaveJournal from '@/hooks/useSaveJournal';
+import useGetRecord from '@/hooks/useGetRecord';
 
 const journalRecordSchema = z.object({
   date: z.iso.date("Обязательно для заполнения"),
@@ -31,67 +33,95 @@ const { useAppForm } = createFormHook({
   formContext,
 })
 
-type AddEngineFormProps = {engineID?: number, closeFormFunc: Function}
+type FormProps = {recordID?: number, closeFormFunc: Function}
 
-function AddJournalRecordForm(props: AddEngineFormProps) {
-  const engineID = props.engineID;
+export const recordTypes = [
+  {
+    id: 0,
+    name: "Монтаж опалубки",
+    unit: "м2"
+  },
+  {
+    id: 1,
+    name: "Кладка перегородок",
+    unit: "м2"
+  },
+  {
+    id: 2,
+    name: "Замешивание раствора",
+    unit: "м3"
+  },
+  {
+    id: 3,
+    name: "Штукатурные работы",
+    unit: "м2"
+  },
+  {
+    id: 4,
+    name: "Укладка обоев",
+    unit: "м2"
+  }
+]
 
-  // todo выполнить запрос на бек по engineID и подставить сюда значения
-  const defaults = {
+function AddJournalRecordForm(props: FormProps) {
+  const recordID = props.recordID;
+
+  const { getRecord } = useGetRecord();
+
+
+  const { mutateAsync: createJournal, isPending: isCreatingJournal } = useSaveJournal();
+
+  const [defaults, setDefaults] = useState({
     date: new Date().toISOString().split("T")[0],
     recordType: 0,
     volume: 0,
     employee: '',
-  }
+  })
 
   const form = useAppForm({
     defaultValues: defaults,
     validators: {
       onChange: journalRecordSchema,
     },
-    onSubmit: ({ value }) => {
-      alert(JSON.stringify(value, null, 2))
+    onSubmit: async ({ value }) => {
+      const payload = { ...(value as any), id: recordID }
+      await createJournal(payload)
+      props.closeFormFunc()
     },
   })
-
-  const recordTypes = [
-    {
-      id: 0,
-      name: "Монтаж опалубки",
-      unit: "м2"
-    },
-    {
-      id: 1,
-      name: "Кладка перегородок",
-      unit: "м2"
-    },
-    {
-      id: 2,
-      name: "Замешивание раствора",
-      unit: "м3"
-    },
-    {
-      id: 3,
-      name: "Закупка инструмента",
-      unit: "шт"
-    },
-    {
-      id: 4,
-      name: "Закупка материалов",
-      unit: "шт"
-    }
-  ]
 
   useEffect(() => {
-    /* if(engineConfigTypes) {
-      if(engineConfigType == engineConfigTypes.filter(x => x.type == "ROTARY")[0]["value"]) {
-        form.setFieldValue("cylindersAmount", 0)
-      } else if(form.getFieldValue("cylindersAmount") == 0) {
-        form.setFieldValue("cylindersAmount", 1)
-      }
-    } */
-    console.log(form.state)
-  })
+    if (!recordID) return;
+
+    const controller = new AbortController();
+    let ignore = false;
+
+    getRecord({ id: recordID, signal: controller.signal })
+      .then((data) => {
+        if (!ignore) {
+          const [day, month, year] = data.date.split('.');
+          const result = `${year}-${month}-${day}`;
+          setDefaults({
+            date: result,
+            recordType: data.record_type,
+            volume: data.volume,
+            employee: data.employee,
+          });
+        }
+      })
+      .catch((error) => {
+        // Отмена запроса – не ошибка, игнорируем
+        if (error.name !== 'CanceledError') {
+          // Здесь можно показать ошибку пользователю
+          console.error('Ошибка загрузки записи:', error);
+        }
+      });
+
+    return () => {
+      controller.abort();
+      ignore = true;
+    };
+  }, [recordID]);
 
   return (
     <>
@@ -114,11 +144,6 @@ function AddJournalRecordForm(props: AddEngineFormProps) {
             name="recordType"
             children={(field) => <field.AutocompleteField items={recordTypes} itemKey={"id"} searchParam={"name"} label="Вид работ" />}
           /> 
-
-          {/* <form.AppField
-            name="recordType"
-            children={(field) => <field.NumberField label="Вид работ" />}
-          /> */}
 
           <form.AppField
             name="volume"

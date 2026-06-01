@@ -1,70 +1,95 @@
-import useAxios from "axios-hooks"
 import { useEffect, useMemo, useState } from 'react';
 import {
   MaterialReactTable,
   MRT_ShowHideColumnsButton,
-  MRT_ToggleFiltersButton,
-  MRT_ToggleGlobalFilterButton,
   useMaterialReactTable,
   type MRT_ColumnDef,
   type MRT_ColumnFiltersState,
   type MRT_PaginationState,
   type MRT_SortingState,
 } from 'material-react-table';
-import { createTheme, IconButton, ThemeProvider } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { MRT_Localization_RU } from 'material-react-table/locales/ru';
 import { LuCirclePlus } from "react-icons/lu";
 import { DashLoading } from "respinner";
-import { MdErrorOutline } from "react-icons/md";
-import { BsCheckCircle } from "react-icons/bs";
+import { MdDeleteForever, MdEdit, MdErrorOutline } from "react-icons/md";
 import {
-    QueryClient,
-    QueryClientProvider,
     useQuery,
 } from '@tanstack/react-query';
 import './JournalTable.css'
 
 import useGetJournals from "@/hooks/useGetJournals";
-import AddJournalRecordForm from "../forms/AddJournalRecordForm";
+import AddJournalRecordForm, { recordTypes } from "../forms/AddJournalRecordForm";
+import useDeleteJournal from "@/hooks/useDeleteJournal";
 
 
 
 export type JournalRecord = {
-  ID: number
-  executionDate: string
-  workType: string
-  workVolume: string
+  id: number
+  date: string
+  record_type: number
+  volume: number
   employee: string
 }
 
 function JournalTable() {
-
     const [isJournalRecordFormOpened, setAddJournalRecordFormOpened] = useState(false);
 
     const [isRefetching, setIsRefetching] = useState(false);
     const [rowCount, setRowCount] = useState(0);
 
+    const { mutateAsync: deleteJournal, isPending: isDeletingJournal } = useDeleteJournal();
+
+    const [editedID, setEditedID] = useState<number | undefined>()
+
     const columns = useMemo<MRT_ColumnDef<JournalRecord>[]>(
         () => [
             {
-                accessorKey: 'executionDate',
+                accessorKey: 'date',
                 header: 'Дата выполнения работы',
                 size: 150,
             },
             {
-                accessorKey: 'workType',
+                accessorKey: 'record_type',
                 header: 'Тип работы',
                 size: 150,
+                Cell: ({ renderedCellValue, row }) => {
+                    return recordTypes.filter(x => x.id == renderedCellValue)[0].name
+                }
             },
             {
-                accessorKey: 'workVolume',
+                accessorKey: 'volume',
                 header: 'Объем работы',
                 size: 150,
+                Cell: ({ renderedCellValue, row }) => {
+                    //  recordTypes.filter(x => x.id == renderedCellValue)[0]
+                    const record_type = recordTypes.filter(x => x.id == row.original.record_type)[0]
+                    return renderedCellValue + " " + record_type.unit
+                }
             },
             {
                 accessorKey: 'employee',
                 header: 'Исполнитель',
                 size: 150,
+            },
+            {
+                accessorKey: 'id',
+                header: 'Действия',
+                size: 150,
+                Cell: ({ renderedCellValue, row }) => {
+                    return (
+                        <>
+                            <MdEdit style={{ cursor: "pointer" }} onClick={() => {
+                                setEditedID(row.original.id)
+                                setAddJournalRecordFormOpened(true)
+                                //setEditedID(undefined)
+                            }} size={25} />
+                            <MdDeleteForever style={{ cursor: "pointer" }} onClick={() => {
+                                deleteJournal(row.original.id)
+                            }} size={25} />
+                        </>
+                    )
+                }
             },
         ],
         [],
@@ -96,16 +121,17 @@ function JournalTable() {
                 },
             ],
             queryFn: async ({ signal }: { signal?: AbortSignal }) => {
-                setRowCount(100) // todo: брать из backend
+                const res = await getJournals({
+                    fetchSize: pagination.pageSize, 
+                    page: pagination.pageIndex,
+                    sorting,
+                    signal
+                })
+                setRowCount(res.total)
                 return {
-                    data: await getJournals({
-                        fetchSize: pagination.pageSize, 
-                        page: pagination.pageIndex,
-                        sorting,
-                        signal
-                    }),
+                    data: res.data,
                     meta: {
-                        totalRowCount: 100, // todo: брать из backend
+                        totalRowCount: res.total,
                     }
                 }
             },
@@ -121,6 +147,8 @@ function JournalTable() {
         paginationDisplayMode: 'pages',
         enableStickyHeader: true,
         enableStickyFooter: true,
+        enableFilters: false,
+        enableGlobalFilter: false,
         onColumnFiltersChange: setColumnFilters,
         onGlobalFilterChange: setGlobalFilter,
         onPaginationChange: setPagination,
@@ -275,6 +303,7 @@ function JournalTable() {
         renderTopToolbarCustomActions: ({ table }) => ( // для добавления своих кнопок в начало тулбара
             <div>
                 <IconButton  onClick={() => {
+                    setEditedID(undefined)
                     setAddJournalRecordFormOpened(!isJournalRecordFormOpened)
                 }}>
                     <LuCirclePlus size={25} />
@@ -294,8 +323,8 @@ function JournalTable() {
             <>
                 {/* add your own custom print button or something */}
                 {/* built-in buttons (must pass in table prop for them to work!) */}
-                <MRT_ToggleGlobalFilterButton table={table} />
-                <MRT_ToggleFiltersButton table={table} />
+                {/* <MRT_ToggleGlobalFilterButton table={table} /> */}
+                {/* <MRT_ToggleFiltersButton table={table} /> */}
                 {/*<MRT_ToggleDensePaddingButton table={table} />*/}
                 <MRT_ShowHideColumnsButton table={table} />
                 {/*<MRT_ToggleFullScreenButton table={table} />*/}
@@ -305,7 +334,7 @@ function JournalTable() {
 
     return (
         <>
-            {isJournalRecordFormOpened ? <AddJournalRecordForm closeFormFunc={() => setAddJournalRecordFormOpened(false)} />: null}
+            {isJournalRecordFormOpened ? <AddJournalRecordForm recordID={editedID} closeFormFunc={() => setAddJournalRecordFormOpened(false)} />: null}
             {!isJournalRecordFormOpened ? <MaterialReactTable table={table} />: null}
         </>
     )

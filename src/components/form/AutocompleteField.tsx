@@ -62,8 +62,7 @@ function AutocompleteField({
     setFilteredItems([]);
     field.handleChange(newValue);
   };
-  
-  console.log(filteredItems)
+
 
   return (
     <div className={styles.form_element}>

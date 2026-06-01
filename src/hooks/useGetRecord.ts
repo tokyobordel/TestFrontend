@@ -6,30 +6,25 @@ import type { MRT_SortingState } from 'material-react-table'
 import { useCallback } from 'react'
 
 type Props = {
-	fetchSize: number,
-	page: number,
-	sorting: MRT_SortingState,
+	id: number,
 	signal?: AbortSignal
 }
 
 
-const useGetJournals = () => {
+const useGetRecord = () => {
 	const request = {
-		url: BACKEND_URL + "/get_records",
+		url: BACKEND_URL + "/get_record",
 		method: "GET",
 	}
 
-	const [{}, execute] = useAxios<{ data: JournalRecord[], total: number }>(request, {useCache: false, manual: true })
+	const [{}, execute] = useAxios<JournalRecord>(request, {useCache: false, manual: true })
 
-	const getJournals = useCallback(
+	const getRecord = useCallback(
 		async (props: Props) => {
             const result = await execute({
 				signal: props.signal,
                 params: {
-					current_page: props.page,
-					rows_per_page: props.fetchSize,
-					sorted_column: props.sorting.length == 0 ? 'id' : props.sorting[0].id,
-					order: props.sorting.length == 0 ? 'asc' : ((props.sorting[0].desc ? "desc" : "asc"))
+					id: props.id,
 				},
             }).catch((error) => {
 				if (axios.isCancel(error)) {
@@ -49,8 +44,8 @@ const useGetJournals = () => {
 	)
 
 	return {
-		getJournals
+		getRecord
 	};	
 }
 
-export default useGetJournals
+export default useGetRecord
