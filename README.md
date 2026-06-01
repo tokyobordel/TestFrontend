@@ -1,73 +1,24 @@
-# React + TypeScript + Vite
+Выбор фронтенд-стека Vite + React с экосистемой Material UI, TanStack и Material React Table обоснован теми же принципами, что и бэкенд: минимальная сложность, максимальная скорость разработки и готовность к расширению.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+1. Привычный инструментарий и высокая скорость работы
+React и его экосистема давно знакомы: компонентный подход, хуки, однонаправленный поток данных не требуют дополнительного обучения. Vite как сборщик обеспечивает мгновенный старт dev-сервера и молниеносную горячую замену модулей (HMR), что критически сокращает цикл «написал → увидел». Никакой тяжёлой конфигурации, присущей Webpack/CRA.
 
-Currently, two official plugins are available:
+2. Мощная таблица «из коробки» – Material React Table
+MRT построен поверх TanStack Table и Material UI. Он даёт готовый, стилизованный компонент с пагинацией, фильтрацией, сортировкой, настройкой колонок и локализацией. В проекте с единственной таблицей это позволило избежать написания десятков строк шаблонного кода для CRUD-интерфейса и сосредоточиться на бизнес-логике. Встроенная поддержка фильтров по дате (date-range) и ручного режима (manualFiltering) идеально легла на серверную пагинацию и SQLAlchemy-бэкенд.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+3. Современная работа с серверным состоянием – TanStack Query
+@tanstack/react-query сводит к минимуму ручное управление загрузкой, ошибками и кешированием. Он автоматически синхронизирует данные с сервером при изменении фильтров или страницы, предоставляя готовые флаги isLoading, isError. Это сокращает код компонента и делает поведение предсказуемым.
 
-## React Compiler
+4. Единая дизайн-система – Material UI
+MUI даёт полный набор стилизованных компонентов (кнопки, иконки, поля ввода, календарь), которые легко кастомизируются через sx-пропсы. Вместе с Emotion это обеспечивает консистентный внешний вид и тёмную тему без лишних усилий. Иконки react-icons дополняют интерфейс узнаваемыми метафорами.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+5. Типизированные формы и валидация – TanStack Form
+TanStack Form с интеграцией Zod позволяет описывать схему валидации декларативно и автоматически выводить типы. В паре с кастомными полями (DateField, AutocompleteField) это даёт строгую типизацию и минимум рутины при создании/редактировании записей.
 
-## Expanding the ESLint configuration
+6. Готовый роутинг и HTTP-клиент
+react-router-dom v7 управляет навигацией, а axios + axios-hooks делают запросы лаконичными. Вкупе с dayjs для работы с датами (включая русскую локализацию) стек закрывает все базовые потребности без привлечения громоздких альтернатив (Redux, Apollo и т.п.).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+7. Масштабируемость без усложнения
+Приложение начиналось с одной таблицы, но стек не накладывает ограничений: React позволяет легко дробить интерфейс на компоненты, TanStack Query – добавлять новые сущности, а MUI – расширять дизайн-систему. При росте требований можно постепенно внедрять state-менеджмент или тесты, не переписывая ядро.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Таким образом, выбор продиктован уже имеющейся экспертизой, зрелыми библиотеками, которые ускоряют разработку, и архитектурной гибкостью, которая позволит проекту расти без резкого роста сложности.

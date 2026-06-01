@@ -1,3 +1,12 @@
 .MuiList-root {
   background-color: var(--main-bg-color) !important;
 }
+
+.MuiPickerPopper-paper {
+  background-color: var(--main-bg-color) !important;
+}
+
+.MuiDayCalendar-weekDayLabel {
+  color: red !important;
+  font-weight: bold !important;
+}

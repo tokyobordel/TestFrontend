@@ -9,6 +9,8 @@ type Props = {
 	fetchSize: number,
 	page: number,
 	sorting: MRT_SortingState,
+	dateStart?: string,
+	dateEnd?: string,
 	signal?: AbortSignal
 }
 
@@ -26,6 +28,8 @@ const useGetJournals = () => {
             const result = await execute({
 				signal: props.signal,
                 params: {
+					dateStart: props.dateStart,
+					dateEnd: props.dateEnd,
 					current_page: props.page,
 					rows_per_page: props.fetchSize,
 					sorted_column: props.sorting.length == 0 ? 'id' : props.sorting[0].id,

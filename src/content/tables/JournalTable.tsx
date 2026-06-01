@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   MaterialReactTable,
   MRT_ShowHideColumnsButton,
+  MRT_ToggleFiltersButton,
   useMaterialReactTable,
   type MRT_ColumnDef,
   type MRT_ColumnFiltersState,
@@ -21,8 +22,9 @@ import './JournalTable.css'
 import useGetJournals from "@/hooks/useGetJournals";
 import AddJournalRecordForm, { recordTypes } from "../forms/AddJournalRecordForm";
 import useDeleteJournal from "@/hooks/useDeleteJournal";
-
-
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import 'dayjs/locale/ru';
 
 export type JournalRecord = {
   id: number
@@ -48,11 +50,13 @@ function JournalTable() {
                 accessorKey: 'date',
                 header: 'Дата выполнения работы',
                 size: 150,
+                filterVariant: 'date-range',
             },
             {
                 accessorKey: 'record_type',
                 header: 'Тип работы',
                 size: 150,
+                enableColumnFilter: false,
                 Cell: ({ renderedCellValue, row }) => {
                     return recordTypes.filter(x => x.id == renderedCellValue)[0].name
                 }
@@ -61,6 +65,7 @@ function JournalTable() {
                 accessorKey: 'volume',
                 header: 'Объем работы',
                 size: 150,
+                enableColumnFilter: false,
                 Cell: ({ renderedCellValue, row }) => {
                     //  recordTypes.filter(x => x.id == renderedCellValue)[0]
                     const record_type = recordTypes.filter(x => x.id == row.original.record_type)[0]
@@ -70,11 +75,13 @@ function JournalTable() {
             {
                 accessorKey: 'employee',
                 header: 'Исполнитель',
+                enableColumnFilter: false,
                 size: 150,
             },
             {
                 accessorKey: 'id',
                 header: 'Действия',
+                enableColumnFilter: false,
                 size: 150,
                 Cell: ({ renderedCellValue, row }) => {
                     return (
@@ -121,9 +128,30 @@ function JournalTable() {
                 },
             ],
             queryFn: async ({ signal }: { signal?: AbortSignal }) => {
+                let dateStart = undefined
+                let dateEnd = undefined
+                if (columnFilters.length !== 0) {
+                    const dateFilterValue = columnFilters[0].value;
+                    if (Array.isArray(dateFilterValue)) {
+                        const [start, end] = dateFilterValue;
+                        const parseDate = (value: unknown): string | undefined => {
+                            if (!value) return undefined;
+                            return (value as any).format('YYYY-MM-DD');
+                        };
+                        dateStart = parseDate(start);
+                        dateEnd = parseDate(end);
+
+                        if (dateStart && dateEnd && dateStart > dateEnd) {
+                            [dateStart, dateEnd] = [dateEnd, dateStart];
+                        }
+                    }
+                }
+
                 const res = await getJournals({
                     fetchSize: pagination.pageSize, 
                     page: pagination.pageIndex,
+                    dateStart,
+                    dateEnd,
                     sorting,
                     signal
                 })
@@ -147,7 +175,7 @@ function JournalTable() {
         paginationDisplayMode: 'pages',
         enableStickyHeader: true,
         enableStickyFooter: true,
-        enableFilters: false,
+        enableFilters: true,
         enableGlobalFilter: false,
         onColumnFiltersChange: setColumnFilters,
         onGlobalFilterChange: setGlobalFilter,
@@ -324,7 +352,7 @@ function JournalTable() {
                 {/* add your own custom print button or something */}
                 {/* built-in buttons (must pass in table prop for them to work!) */}
                 {/* <MRT_ToggleGlobalFilterButton table={table} /> */}
-                {/* <MRT_ToggleFiltersButton table={table} /> */}
+                {<MRT_ToggleFiltersButton table={table} />}
                 {/*<MRT_ToggleDensePaddingButton table={table} />*/}
                 <MRT_ShowHideColumnsButton table={table} />
                 {/*<MRT_ToggleFullScreenButton table={table} />*/}
@@ -335,7 +363,9 @@ function JournalTable() {
     return (
         <>
             {isJournalRecordFormOpened ? <AddJournalRecordForm recordID={editedID} closeFormFunc={() => setAddJournalRecordFormOpened(false)} />: null}
-            {!isJournalRecordFormOpened ? <MaterialReactTable table={table} />: null}
+            {!isJournalRecordFormOpened ? <LocalizationProvider adapterLocale="ru" dateAdapter={AdapterDayjs}>
+                <MaterialReactTable table={table} />
+                </LocalizationProvider>: null}
         </>
     )
 }
