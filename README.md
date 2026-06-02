@@ -1,4 +1,6 @@
-Запуск: npm i && npm run build && npm run dev
+Запуск: 
+1. Установить docker
+2. docker-compose down -v && docker-compose up --build --force-recreate
 
 Выбор фронтенд-стека Vite + React с экосистемой Material UI, TanStack и Material React Table обоснован теми же принципами, что и бэкенд: минимальная сложность, максимальная скорость разработки и готовность к расширению.
 
