@@ -82,6 +82,7 @@ function JournalTable() {
                 accessorKey: 'id',
                 header: 'Действия',
                 enableColumnFilter: false,
+                enableSorting: false,
                 size: 150,
                 Cell: ({ renderedCellValue, row }) => {
                     return (
